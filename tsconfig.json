@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "outDir": "./dist",
+        "jsx": "react",
+        "esModuleInterop": true
+    },
+    "include": ["./*", "./react-runner-swc"],
+    "exclude": ["node_modules", "dist"]
+}
