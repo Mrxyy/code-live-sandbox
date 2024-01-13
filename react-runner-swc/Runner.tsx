@@ -1,4 +1,4 @@
-import { Component, ReactElement,createRef } from 'react'
+import { Component, ReactElement, createRef } from 'react'
 import init from '@swc/wasm-web/wasm-web'
 import { generateElement } from './utils'
 import { RunnerOptions, Scope } from './types'
@@ -63,11 +63,11 @@ class ReactAppContainer extends HTMLElement {
     return this._ReactDOM;
   }
 
-  set App(value:  ReactElement) {
+  set App(value: ReactElement) {
     this._App = value;
   }
 
-  get App():  ReactElement | undefined {
+  get App(): ReactElement | undefined {
     return this._App;
   }
 }
@@ -188,12 +188,12 @@ export class AloneRunner extends Runner {
 
     const { createRoot } = this?.state?.prevScope?.import?.["react-dom"] || {}
     const root = createRoot(this.wrapper.current);
-    root.render( this.state.error ? null : this.state.element);
+    root.render(this.state.error ? null : this.state.element);
     this.props.onRendered?.(this.state.error || undefined)
   }
 
   render() {
-    return <div ref={this.wrapper} />
+    return <div ref={this.wrapper} id="codeLiveRunner" />
   }
 }
 

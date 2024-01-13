@@ -1,4 +1,4 @@
-import { Options, transformSync as _transform } from '@swc/wasm-web/wasm-web';
+import { Options, transformSync as _transform, parseSync } from '@swc/wasm-web/wasm-web';
 
 const config: Options = {
     jsc: {
@@ -26,7 +26,14 @@ const config: Options = {
 };
 
 export const transform = (code: string) => {
-    // console.log(_transform(code, config).code.substring(13), '22233');
+    // console.log(
+    //     parseSync(code, {
+    //         syntax: 'typescript',
+    //         tsx: true,
+    //         target: 'es5',
+    //     }),
+    //     '22233'
+    // );
     return _transform(code, config).code.substring(13); // remove leading `"use strict";`
 };
 
