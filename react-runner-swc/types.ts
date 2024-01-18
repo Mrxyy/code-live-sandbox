@@ -8,4 +8,5 @@ export type RunnerOptions = {
     code: string;
     /** globals that could be used in code */
     scope?: Scope;
+    props?: Record<string, any>;
 };

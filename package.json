@@ -1,18 +1,26 @@
 {
   "name": "react-live-runner-swc",
-  "version": "1.0.1",
-  "description": "It's similar to React Live but uses SWC, which allows you to render React components with editable source code and a live preview.",
+  "version": "1.0.2",
+  "description": "A React code sandbox in the browser. Useful for component library documentation, code execution, React playgrounds, and more.",
   "scripts": {
-    "build": "rm -rf dist && tsc",
+    "build:cjs": "tsc --outDir ./dist/cjs --module commonjs",
+    "build:esm": "tsc --outDir ./dist/esm --module ES6",
+    "build:umd": "tsc --outDir ./dist/umd --module umd",
+    "build": "rm -rf dist && npm run build:cjs && npm run build:esm && npm run build:umd",
     "watch": "tsc -w",
+    "watch-dev": "tsc -w  --outDir /Users/xiongyangyang/Desktop/lowcode-console/src/react-live-runner-swc",
     "release": "pnpm build && npm publish && rm -rf dist"
   },
   "dependencies": {
     "@swc/wasm-web": "^1.3.102"
   },
-  "main": "./dist/index.js",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "browser": "./dist/umd/index.js",
   "files": [
     "dist",
+    "readme.md",
+    "readme-zh.md",
     "package.json"
   ],
   "author": "",

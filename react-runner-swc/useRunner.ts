@@ -17,6 +17,7 @@ export type UseRunnerReturn = {
 export const useRunner = ({
     code,
     scope,
+    props,
     disableCache,
     alone,
 }: UseRunnerProps): UseRunnerReturn => {
@@ -25,26 +26,24 @@ export const useRunner = ({
     const [state, setState] = useState<UseRunnerReturn>(() => {
         return { element: null, error: null };
     });
-    useEffect(
-        () => {
-            const element = createElement(alone ? AloneRunner : Runner, {
-                code,
-                scope,
-                onRendered: error => {
-                    if (error) {
-                        setState({
-                            element: disableCache ? null : elementRef.current,
-                            error: error.toString(),
-                        });
-                    } else {
-                        elementRef.current = element;
-                    }
-                },
-            });
-            setState({ element, error: null });
-        },
-        [code, scope, disableCache, alone]
-    );
+    useEffect(() => {
+        const element = createElement(alone ? AloneRunner : Runner, {
+            code,
+            scope,
+            props,
+            onRendered: error => {
+                if (error) {
+                    setState({
+                        element: disableCache ? null : elementRef.current,
+                        error: error.toString(),
+                    });
+                } else {
+                    elementRef.current = element;
+                }
+            },
+        });
+        setState({ element, error: null });
+    }, [code, scope, disableCache, alone, props]);
 
     return state;
 };

@@ -1,6 +1,12 @@
 import { Options, transformSync as _transform, parseSync } from '@swc/wasm-web/wasm-web';
 
-const config: Options = {
+let customTransform: (code: string) => string;
+
+export function setCustomTransform(customTransformFn: typeof customTransform) {
+    customTransform = customTransformFn;
+}
+
+let config: Options = {
     jsc: {
         parser: {
             syntax: 'typescript',
@@ -20,21 +26,27 @@ const config: Options = {
     module: {
         type: 'commonjs',
         noInterop: true,
+        strict: false,
+        strictMode: false,
     },
-    minify: false,
+    minify: true,
     isModule: true,
 };
 
+export function changeTransform(customTransformFn: (customTransformFn: Options) => Options) {
+    config = customTransformFn(config);
+}
+
 export const transform = (code: string) => {
-    // console.log(
-    //     parseSync(code, {
-    //         syntax: 'typescript',
-    //         tsx: true,
-    //         target: 'es5',
-    //     }),
-    //     '22233'
-    // );
-    return _transform(code, config).code.substring(13); // remove leading `"use strict";`
+    return customTransform ? customTransform(code) : _transform(code, config).code;
+};
+
+export const getCodeAst = (code: string) => {
+    return parseSync(code, {
+        syntax: 'typescript',
+        tsx: true,
+        target: 'es5',
+    });
 };
 
 const firstStatementRegexp = /^(\s*)(<[^>]*>|function[(\s]|\(\)[\s=]|class\s)(.*)/;
