@@ -82,7 +82,10 @@ export class Runner extends Component<RunnerProps, RunnerState> {
                         state.changeData(key, props.scope.data[key]);
                     }
                 }
-                el = generateElement(props, state.element);
+                el = generateElement({
+                    options: props,
+                    el: state.element,
+                });
                 return {
                     element: el,
                     error: null,
@@ -91,7 +94,10 @@ export class Runner extends Component<RunnerProps, RunnerState> {
                     props: props.props,
                 };
             } else {
-                const res: any = generateElement(props);
+                console.log(props);
+                const res: any = generateElement({
+                    options: props,
+                });
                 el = res?.el;
                 changeData = res?.changeData;
             }

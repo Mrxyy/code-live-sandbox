@@ -1,4 +1,4 @@
-# react-live-runner-swc
+# code-live-sandbox
 
 ### 在浏览器中的react代码沙箱。可用应用在组件库文档、代码执行器、react playground等。
 
@@ -15,11 +15,11 @@
 #### 使用
 
 ```shell
-pnpm add @swc/wasm-web react-live-runner-swc
+pnpm add @swc/wasm-web code-live-sandbox
 ```
 
 ```jsx
-import { LivePreview, LiveProvider, useLiveContext } from'react-live-runner-swc';
+import { LivePreview, LiveProvider, useLiveContext } from'code-live-sandbox';
 // Editor 组件安装的需求，实现一个可以可以编辑的容器。例如：MirrorCodevscode等
 import Editor form  '../Editor'
 
@@ -48,7 +48,7 @@ const Live = useMemo(() => {
 #### 使用SWC 作为默认转换器,支持自定义打包器。
 
 ```jsx
-import {  setDrive } from 'react-live-runner-swc';
+import {  setDrive } from 'code-live-sandbox';
 setDrive((code: string) => {
   return _transform(code, {
     transforms: ['jsx', 'typescript', 'imports'],
@@ -60,7 +60,7 @@ setDrive((code: string) => {
 #### 默认配置可以通过ts类型查看，支持自定义配置。
 
 ```jsx
-import { changeTransform } from 'react-live-runner-swc';
+import { changeTransform } from 'code-live-sandbox';
 import { merge } from 'lodash';
 import { transform as _transform } from 'sucrase';
 // 设置自定义组件的编译规则

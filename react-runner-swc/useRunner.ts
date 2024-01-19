@@ -20,6 +20,7 @@ export const useRunner = ({
     props,
     disableCache,
     alone,
+    production,
 }: UseRunnerProps): UseRunnerReturn => {
     const elementRef = useRef<ReactElement | null>(null);
 
@@ -31,6 +32,7 @@ export const useRunner = ({
             code,
             scope,
             props,
+            production,
             onRendered: error => {
                 if (error) {
                     setState({

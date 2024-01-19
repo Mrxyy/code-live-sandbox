@@ -1,5 +1,5 @@
 [中文](./readme-zh.md)
-# react-live-runner-swc
+# code-live-sandbox
 
 ### A React code sandbox in the browser. Useful for component library documentation, code execution, React playgrounds, and more.
 
@@ -16,11 +16,11 @@
 #### Usage
 
 ```shell
-pnpm add @swc/wasm-web react-live-runner-swc
+pnpm add @swc/wasm-web code-live-sandbox
 ```
 
 ```jsx
-import { LivePreview, LiveProvider, useLiveContext } from 'react-live-runner-swc';
+import { LivePreview, LiveProvider, useLiveContext } from 'code-live-sandbox';
 // Requirements for the Editor component, implement an editable container. For example: MirrorCode, vscode, etc.
 import Editor from '../Editor'
 
@@ -49,7 +49,7 @@ const Live = useMemo(() => {
 #### Using SWC as the Default Transformer, with Support for Custom Bundlers.
 
 ```jsx
-import { setDrive } from 'react-live-runner-swc';
+import { setDrive } from 'code-live-sandbox';
 setDrive((code: string) => {
   return _transform(code, {
     transforms: ['jsx', 'typescript', 'imports'],
@@ -61,7 +61,7 @@ setDrive((code: string) => {
 #### Default configurations can be inspected with TypeScript types, and custom configurations are supported.
 
 ```jsx
-import { changeTransform } from 'react-live-runner-swc';
+import { changeTransform } from 'code-live-sandbox';
 import { merge } from 'lodash';
 import { transform as _transform } from 'sucrase';
 // Set custom compilation rules for components

@@ -1,6 +1,6 @@
 {
-  "name": "react-live-runner-swc",
-  "version": "1.0.2",
+  "name": "code-live-sandbox",
+  "version": "1.0.4",
   "description": "A React code sandbox in the browser. Useful for component library documentation, code execution, React playgrounds, and more.",
   "scripts": {
     "build:cjs": "tsc --outDir ./dist/cjs --module commonjs",
@@ -8,7 +8,7 @@
     "build:umd": "tsc --outDir ./dist/umd --module umd",
     "build": "rm -rf dist && npm run build:cjs && npm run build:esm && npm run build:umd",
     "watch": "tsc -w",
-    "watch-dev": "tsc -w  --outDir /Users/xiongyangyang/Desktop/lowcode-console/src/react-live-runner-swc",
+    "watch-dev": "tsc -w  --outDir /Users/xiongyangyang/Desktop/lowcode-console/src/code-live-sandbox",
     "release": "pnpm build && npm publish && rm -rf dist"
   },
   "dependencies": {
@@ -16,7 +16,6 @@
   },
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
-  "browser": "./dist/umd/index.js",
   "files": [
     "dist",
     "readme.md",
@@ -31,7 +30,7 @@
   "Keywords": [
     "react-live",
     "react-runner",
-    "react-live-runner-swc",
+    "code-live-sandbox",
     "compile-react-in-browser"
   ]
 }

@@ -4,9 +4,9 @@
         "outDir": "./dist",
         "jsx": "react",
         "esModuleInterop": true,
-        "target": "es5", // 编译后的 JavaScript 目标版本
-        "module": "ES6", // 使用 ECMAScript 2015 模块
-        "moduleResolution": "node" // 如果你的代码运行在 Node.js 环境中
+        "target": "es5",
+        "module": "ES6",
+        "moduleResolution": "node"
     },
     "include": ["./*", "./react-runner-swc"],
     "exclude": ["node_modules", "dist"]

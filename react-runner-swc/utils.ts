@@ -31,11 +31,12 @@ export function shallowEqual(objA, objB) {
     return true;
 }
 
-const evalCode = (code: string, scope: Scope) => {
+//code + scope => export.default
+export const evalCode = (code: string, scope: Scope) => {
     // `default` is not allowed in `new Function`
     const { data, default: _, import: imports, ...rest } = scope;
     const finalScope: Scope = {
-        React,
+        React: imports?.React || React,
         require: createRequire(imports),
         data: { ...data },
         ...rest,
@@ -55,10 +56,13 @@ const evalCode = (code: string, scope: Scope) => {
     return changeData;
 };
 
-export const generateElement = (
-    options: RunnerOptions,
-    el?: any
-): { el: ReactElement; changeData: any } | null | ReactElement => {
+export const generateElement = ({
+    options,
+    el,
+}: {
+    options: RunnerOptions;
+    el?: any;
+}): { el: ReactElement; changeData: any } | null | ReactElement => {
     const { code, props, scope } = options;
     if (el?.type) {
         return createElement(el?.type, props);
@@ -70,20 +74,23 @@ export const generateElement = (
     const render = (value: unknown) => {
         exports.default = value;
     };
-    const changeData = evalCode(transform(normalizeCode(code)), {
+
+    const proCode = options.production ? options.code : transform(normalizeCode(code));
+    const changeData = evalCode(proCode, {
         render,
         ...scope,
         exports,
     });
-
     // 导出的函数
     const result = exports.default; //access function component
+
     if (!result) return null;
     if (isValidElement(result)) return result;
     if (typeof result === 'function') {
-        const el = createElement(result, props);
+        const createEl = scope?.import?.react?.createElement || createElement;
+
         return {
-            el,
+            el: createEl(result, props),
             changeData,
         };
     }
@@ -106,7 +113,7 @@ export const createRequire =
 
 export const importCode = (code: string, scope?: Scope) => {
     const exports: Scope = {};
-    evalCode(transform(code), { ...scope, exports });
+    exports.changeData = evalCode(transform(code), { ...scope, exports });
 
     return exports;
 };
