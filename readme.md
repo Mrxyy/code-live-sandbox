@@ -50,6 +50,8 @@ const Live = useMemo(() => {
 
 ```jsx
 import { setDrive } from 'code-live-sandbox';
+import { transform as _transform } from 'sucrase';
+
 setDrive((code: string) => {
   return _transform(code, {
     transforms: ['jsx', 'typescript', 'imports'],
@@ -63,7 +65,6 @@ setDrive((code: string) => {
 ```jsx
 import { changeTransform } from 'code-live-sandbox';
 import { merge } from 'lodash';
-import { transform as _transform } from 'sucrase';
 // Set custom compilation rules for components
 changeTransform((config) => {
   return merge(

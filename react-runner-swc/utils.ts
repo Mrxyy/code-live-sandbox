@@ -31,6 +31,19 @@ export function shallowEqual(objA, objB) {
     return true;
 }
 
+function shallowClone(obj) {
+    if (Array.isArray(obj)) {
+        // 使用 slice() 来浅克隆数组
+        return obj.slice();
+    } else if (typeof obj === 'object' && obj !== null) {
+        // 使用展开运算符来浅克隆对象
+        return { ...obj };
+    } else {
+        // 非对象或数组，直接返回（基本数据类型是不需要克隆的）
+        return obj;
+    }
+}
+
 //code + scope => export.default
 export const evalCode = (code: string, scope: Scope) => {
     // `default` is not allowed in `new Function`
@@ -38,7 +51,7 @@ export const evalCode = (code: string, scope: Scope) => {
     const finalScope: Scope = {
         React: imports?.React || React,
         require: createRequire(imports),
-        data: { ...data },
+        data: shallowClone(data),
         ...rest,
     };
 

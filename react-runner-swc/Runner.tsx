@@ -94,7 +94,6 @@ export class Runner extends Component<RunnerProps, RunnerState> {
                     props: props.props,
                 };
             } else {
-                console.log(props);
                 const res: any = generateElement({
                     options: props,
                 });
