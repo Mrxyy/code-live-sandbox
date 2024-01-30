@@ -144,6 +144,19 @@ export class Runner extends Component<RunnerProps, RunnerState> {
         return this.state.error ? null : this.state.element;
     }
 }
+
+class ErrorBoundary extends React.Component<{
+    children;
+    onError: (error: Error) => void;
+}> {
+    getDerivedStateFromError(error) {
+        this.props.onError(error);
+    }
+
+    render() {
+        return this.props.children;
+    }
+}
 export class AloneRunner extends Runner {
     state: RunnerState = {
         element: null,
@@ -160,7 +173,17 @@ export class AloneRunner extends Runner {
     componentDidUpdate() {
         const { createRoot } = this?.state?.prevScope?.import?.['react-dom'] || {};
         const root = createRoot(this.wrapper.current);
-        root.render(this.state.error ? null : this.state.element);
+        root.render(
+            <ErrorBoundary
+                onError={error => {
+                    return this.setState({
+                        error,
+                    });
+                }}
+            >
+                {this.state.error ? null : this.state.element}
+            </ErrorBoundary>
+        );
         this.props.onRendered?.(this.state.error || undefined);
     }
 

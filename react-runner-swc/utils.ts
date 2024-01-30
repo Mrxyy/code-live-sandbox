@@ -46,27 +46,31 @@ function shallowClone(obj) {
 
 //code + scope => export.default
 export const evalCode = (code: string, scope: Scope) => {
-    // `default` is not allowed in `new Function`
-    const { data, default: _, import: imports, ...rest } = scope;
-    const finalScope: Scope = {
-        React: imports?.React || React,
-        require: createRequire(imports),
-        data: shallowClone(data),
-        ...rest,
-    };
+    try {
+        // `default` is not allowed in `new Function`
+        const { data, default: _, import: imports, ...rest } = scope;
+        const finalScope: Scope = {
+            React: imports?.React || React,
+            require: createRequire(imports),
+            data: shallowClone(data),
+            ...rest,
+        };
 
-    function changeData(key, value) {
-        if (typeof finalScope.data === 'object') {
-            finalScope.data.key = value;
-        }
+        const changeData = (key, value) => {
+            if (typeof finalScope.data === 'object') {
+                finalScope.data.key = value;
+            }
+        };
+
+        const scopeKeys = Object.keys(finalScope); // 获取作用域中所有的key
+        const scopeValues = scopeKeys.map(key => finalScope[key]);
+        // eslint-disable-next-line no-new-func
+        const fn = new Function(...scopeKeys, code);
+        fn(...scopeValues);
+        return changeData;
+    } catch (e) {
+        console.log(code, ':', 'Code has been executed fail.');
     }
-
-    const scopeKeys = Object.keys(finalScope); // 获取作用域中所有的key
-    const scopeValues = scopeKeys.map(key => finalScope[key]);
-    // eslint-disable-next-line no-new-func
-    const fn = new Function(...scopeKeys, code);
-    fn(...scopeValues);
-    return changeData;
 };
 
 export const generateElement = ({
