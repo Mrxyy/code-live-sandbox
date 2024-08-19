@@ -24,12 +24,9 @@ export const useLiveRunner = ({
         ...rest,
     });
 
-    useEffect(
-        () => {
-            onChange(initialCode);
-        },
-        [initialCode]
-    );
+    useEffect(() => {
+        onChange(initialCode);
+    }, [initialCode]);
 
     return { element, error, code, onChange };
 };

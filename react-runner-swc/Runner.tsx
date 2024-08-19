@@ -45,7 +45,7 @@ export class Runner extends Component<RunnerProps, RunnerState> {
     };
 
     static getDerivedStateFromProps(
-        props: RunnerProps,
+        optionsProps: RunnerProps,
         state: RunnerState
     ): Partial<RunnerState> | null {
         // only regenerate on code/scope change
@@ -54,9 +54,9 @@ export class Runner extends Component<RunnerProps, RunnerState> {
         }
 
         if (
-            state.prevCode === props.code &&
-            shallowEqual(state.prevScope, props.scope) &&
-            shallowEqual(props.props, state.props)
+            state.prevCode === optionsProps.code &&
+            shallowEqual(state.prevScope, optionsProps.scope) &&
+            shallowEqual(optionsProps.props, state.props)
         ) {
             return null;
         }
@@ -65,37 +65,37 @@ export class Runner extends Component<RunnerProps, RunnerState> {
             let el, changeData;
             if (
                 state.element &&
-                state.prevCode === props.code &&
+                state.prevCode === optionsProps.code &&
                 shallowEqual(
                     {
                         ...state.prevScope,
                         data: undefined,
                     },
                     {
-                        ...props.scope,
+                        ...optionsProps.scope,
                         data: undefined,
                     }
                 )
             ) {
-                if (typeof props.scope.data === 'object') {
-                    for (const key in props.scope.data) {
-                        state.changeData(key, props.scope.data[key]);
+                if (typeof optionsProps.scope.data === 'object') {
+                    for (const key in optionsProps.scope.data) {
+                        state.changeData(key, optionsProps.scope.data[key]);
                     }
                 }
                 el = generateElement({
-                    options: props,
+                    options: optionsProps,
                     el: state.element,
                 });
                 return {
                     element: el,
                     error: null,
-                    prevCode: props.code,
-                    prevScope: props.scope,
-                    props: props.props,
+                    prevCode: optionsProps.code,
+                    prevScope: optionsProps.scope,
+                    props: optionsProps.props,
                 };
             } else {
                 const res: any = generateElement({
-                    options: props,
+                    options: optionsProps,
                 });
                 el = res?.el;
                 changeData = res?.changeData;
@@ -103,18 +103,18 @@ export class Runner extends Component<RunnerProps, RunnerState> {
             return {
                 element: el,
                 error: null,
-                prevCode: props.code,
-                prevScope: props.scope,
+                prevCode: optionsProps.code,
+                prevScope: optionsProps.scope,
                 changeData: changeData,
-                props: props.props,
+                props: optionsProps.props,
             };
         } catch (error: unknown) {
             console.log(error, 'error');
             return {
                 element: null,
                 error: error as Error,
-                prevCode: props.code,
-                prevScope: props.scope,
+                prevCode: optionsProps.code,
+                prevScope: optionsProps.scope,
             };
         }
     }
@@ -146,14 +146,30 @@ export class Runner extends Component<RunnerProps, RunnerState> {
 }
 
 class ErrorBoundary extends React.Component<{
-    children;
+    children: React.ReactNode;
     onError: (error: Error) => void;
-}> {
-    getDerivedStateFromError(error) {
+}, { hasError: boolean }> {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false };
+    }
+
+    static getDerivedStateFromError(error: Error) {
+        // Update state so the next render will show the fallback UI.
+        return { hasError: true };
+    }
+
+    componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+        // You can also log the error to an error reporting service
         this.props.onError(error);
     }
 
     render() {
+        if (this.state.hasError) {
+            // You can render any custom fallback UI
+            return null;
+        }
+
         return this.props.children;
     }
 }
@@ -170,10 +186,14 @@ export class AloneRunner extends Runner {
 
     wrapper = createRef<HTMLDivElement>();
 
+    root = null;
+
     componentDidUpdate() {
         const { createRoot } = this?.state?.prevScope?.import?.['react-dom'] || {};
-        const root = createRoot(this.wrapper.current);
-        root.render(
+        if (!this.root) {
+            this.root = createRoot(this.wrapper.current);
+        }
+        this.root.render(
             <ErrorBoundary
                 onError={error => {
                     return this.setState({

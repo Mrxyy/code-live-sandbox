@@ -1,6 +1,7 @@
 import React, { createElement, isValidElement, ReactElement } from 'react';
 
 import { transform, normalizeCode } from './transform';
+import { withMultiFiles } from './withMultiFile';
 import { RunnerOptions, Scope } from './types';
 
 export function shallowEqual(objA, objB) {
@@ -69,7 +70,7 @@ export const evalCode = (code: string, scope: Scope) => {
         fn(...scopeValues);
         return changeData;
     } catch (e) {
-        console.log(code, ':', 'Code has been executed fail.');
+        console.log(code, e, ':', 'Code has been executed fail.');
     }
 };
 
@@ -80,7 +81,8 @@ export const generateElement = ({
     options: RunnerOptions;
     el?: any;
 }): { el: ReactElement; changeData: any } | null | ReactElement => {
-    const { code, props, scope } = options;
+    const { code, props } = options;
+    let { scope } = options;
     if (el?.type) {
         return createElement(el?.type, props);
     }
@@ -88,6 +90,7 @@ export const generateElement = ({
     if (!code.trim()) return null;
 
     const exports: Scope = {};
+    if (scope.files) scope.import = withMultiFiles(scope)?.import;
     const render = (value: unknown) => {
         exports.default = value;
     };
@@ -128,9 +131,11 @@ export const createRequire =
         };
     };
 
-export const importCode = (code: string, scope?: Scope) => {
+export const importCode = (code: string, scope?: Scope, pure?: boolean) => {
     const exports: Scope = {};
-    exports.changeData = evalCode(transform(code), { ...scope, exports });
-
+    const changeData = evalCode(transform(code), { ...scope, exports });
+    if (!pure) {
+        exports.changeData = changeData;
+    }
     return exports;
 };
