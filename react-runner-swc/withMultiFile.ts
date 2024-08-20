@@ -1,8 +1,5 @@
-import { styled } from 'styled-components';
 import { importCode } from './utils';
 import { Scope } from './types';
-import { each } from 'lodash';
-import { isString } from 'lodash';
 
 export const splitFileName = (filename: string) => {
     const baseIdx = filename.lastIndexOf('/');
@@ -42,12 +39,13 @@ export const withMultiFiles = (scope: Scope) => {
     const imports: Scope = scope.import;
     const filesMap: Record<string, string> = {};
 
-    each(scope.files, (v, key) => {
+    for (const key in scope.files) {
+        const v = scope.files[key];
         const [name, ext] = splitFileName(key);
-        if (ALIAS_EXTENSION.includes(ext) && isString(v)) {
+        if (ALIAS_EXTENSION.includes(ext) && typeof v === 'string') {
             filesMap[key] = v;
         }
-    });
+    }
 
     const files: Record<string, string> = Object.fromEntries(
         Object.entries(filesMap)
