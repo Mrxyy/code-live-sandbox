@@ -12,6 +12,8 @@
 
 + 最简洁的代码。
 
++ 支持复杂的模块化导入系统。
+
 #### 使用
 
 ```shell
@@ -19,6 +21,7 @@ pnpm add @swc/wasm-web code-live-sandbox
 ```
 
 ```jsx
+import * as react  from  "react";
 import { LivePreview, LiveProvider, useLiveContext } from'code-live-sandbox';
 // Editor 组件安装的需求，实现一个可以可以编辑的容器。例如：MirrorCodevscode等
 import Editor form  '../Editor'
@@ -34,9 +37,11 @@ const Live = useMemo(() => {
           <LiveProvider
               code={value}
               scope={{
-                  ...scope,
-                  data: props,
+                  import:{ //import 中定义可以使用第三方包依赖
+                    react
+                  }
               }}
+              props={props}
           >
               <Error />
               {node}
@@ -87,6 +92,91 @@ changeTransform((config) => {
 ```html
 <LiveProvider code={value} alone={true}...
 ````
+
+#### 多文件
+```jsx
+import { LivePreview, LiveProvider } from'code-live-sandbox';
+import useEditor form  '../useEditor'
+
+const files = {
+    './login.tsx': `
+      import React from 'react';
+      import Content from './Content';
+      const Login = () => {
+          return (
+              <Content/>
+          );
+      }
+      export default Login;
+`,
+    'Login.module.css': `
+        .button{
+            background-color: red;
+        }
+    `,
+    './components/Button.tsx': `import React from 'react';
+            import '../Login.module.css';
+            const Button = () => {
+                return (
+                    <button className="button">
+                        按钮
+                    </button>
+                );
+            }
+            export default Button;`,
+    './Content.tsx': `
+        import React from 'react';
+        import Button from './components/Button';
+        const Content = () => {
+                return (
+                    <Button/>
+                );
+            }
+        export default Content;
+    `,
+};
+
+
+const Live = (files,import) => {
+      return (
+            <LiveProvider
+                code={value}
+                alone={alone}
+                scope={{
+                    import,
+                    files //files中定义文件，文件路径为项目相对路径，例如：./a.tsx,a.css
+                }}
+                props={props}
+            >
+              <LivePreview />
+            </LiveProvider>
+      );
+  };
+
+const LiveWithEditor = (scope,setScope) => {
+
+    //files中存在所有文件相对于项目的相对路径和内容,import中是所有可用模块
+    const { files, import: dependencies } = useMemo(()=>withMultiFiles(scope),[scope]);
+
+    //根据自己的需求编辑文件内容
+    const editor = useEditor(files,setScope);
+
+    return (
+       <LiveProvider
+                code={value}
+                alone={alone}
+                scope={{
+                    //不再需要files
+                    import: dependencies
+                }}
+                props={props}
+            >
+          <LivePreview />
+          {editor}
+     </LiveProvider>
+    );
+  };
+```
 
 ### 计划
 
