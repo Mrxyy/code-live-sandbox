@@ -1,6 +1,6 @@
 {
   "name": "code-live-sandbox",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A React code sandbox in the browser. Useful for component library documentation, code execution, React playgrounds, and more.",
   "scripts": {
     "build:cjs": "tsc --outDir ./dist/cjs --module commonjs",
