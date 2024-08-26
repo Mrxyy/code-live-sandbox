@@ -236,37 +236,6 @@ export class Runner extends Component<RunnerProps, RunnerState> {
     }
 }
 
-class ErrorBoundary extends React.Component<
-    {
-        children: React.ReactNode;
-        onError: (error: Error) => void;
-    },
-    { hasError: boolean }
-> {
-    constructor(props) {
-        super(props);
-        this.state = { hasError: false };
-    }
-
-    static getDerivedStateFromError(error: Error) {
-        // Update state so the next render will show the fallback UI.
-        return { hasError: true };
-    }
-
-    componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-        // You can also log the error to an error reporting service
-        this.props.onError(error);
-    }
-
-    render() {
-        if (this.state.hasError) {
-            // You can render any custom fallback UI
-            return null;
-        }
-
-        return this.props.children;
-    }
-}
 export class AloneRunner extends Runner {
     state: RunnerState = {
         element: null,
@@ -282,17 +251,59 @@ export class AloneRunner extends Runner {
 
     root = null;
 
+    ErrorBoundary = null;
+
     componentDidUpdate() {
         const { createRoot } =
             this?.state?.prevScope?.import?.['react-dom/client'] ||
             this?.state?.prevScope?.import?.['react-dom'] ||
             {};
+        const react: typeof React = this?.state?.prevScope?.import?.['react'];
+
         if (!this.root) {
             this.root = createRoot(this.wrapper.current);
         }
+
+        if (!this.ErrorBoundary) {
+            this.ErrorBoundary = class ErrorBoundary extends react.Component<
+                {
+                    children: React.ReactNode;
+                    onError: (error: Error) => void;
+                },
+                { hasError: boolean }
+            > {
+                constructor(props) {
+                    super(props);
+                    this.state = { hasError: false };
+                }
+
+                static getDerivedStateFromError(error: Error) {
+                    // Update state so the next render will show the fallback UI.
+                    return { hasError: true };
+                }
+
+                componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+                    // You can also log the error to an error reporting service
+                    this.props.onError(error);
+                }
+
+                render() {
+                    if (this.state.hasError) {
+                        // You can render any custom fallback UI
+                        return null;
+                    }
+
+                    return this.props.children;
+                }
+            };
+        }
+
+        const ErrorBoundary = this.ErrorBoundary;
+
         this.root.render(
             <ErrorBoundary
                 onError={error => {
+                    console.log('AloneRunnerError:', error);
                     return this.setState({
                         error,
                     });
@@ -301,6 +312,7 @@ export class AloneRunner extends Runner {
                 {this.state.error ? null : this.state.element}
             </ErrorBoundary>
         );
+
         this.props.onRendered?.(this.state.error || undefined);
     }
 

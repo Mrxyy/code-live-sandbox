@@ -131,8 +131,11 @@ export const generateElement = ({
 }): { el: ReactElement; changeData: any } | null | ReactElement => {
     const { code, props } = options;
     let { scope } = options;
+    const createEl = scope?.import?.react?.createElement || createElement;
+    const isValidElementFn = scope?.import?.react?.isValidElement || isValidElement;
+
     if (el?.type) {
-        return createElement(el?.type, props);
+        return createEl(el?.type, props);
     }
 
     if (!code.trim()) return null;
@@ -153,10 +156,8 @@ export const generateElement = ({
     const result = exports.default; //access function component
 
     if (!result) return null;
-    if (isValidElement(result)) return result;
+    if (isValidElementFn(result)) return result;
     if (typeof result === 'function') {
-        const createEl = scope?.import?.react?.createElement || createElement;
-
         return {
             el: createEl(result, props),
             changeData,

@@ -1,8 +1,8 @@
 import { createContext, useContext } from 'react';
 
-import { UseLiveRunnerRetrun } from './useLiveRunner';
+import { UseLiveRunnerReturn } from './useLiveRunner';
 
-export type LiveContextProps = UseLiveRunnerRetrun & {
+export type LiveContextProps = UseLiveRunnerReturn & {
     language?: string;
 };
 

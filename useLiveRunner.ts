@@ -8,7 +8,7 @@ export type UseLiveRunnerProps = Omit<UseRunnerProps, 'code'> & {
     transformCode?: (code: string) => string;
 };
 
-export type UseLiveRunnerRetrun = UseRunnerReturn & {
+export type UseLiveRunnerReturn = UseRunnerReturn & {
     code: string;
     onChange: (value: string) => void;
 };
@@ -17,7 +17,7 @@ export const useLiveRunner = ({
     initialCode = '',
     transformCode,
     ...rest
-}: UseLiveRunnerProps): UseLiveRunnerRetrun => {
+}: UseLiveRunnerProps): UseLiveRunnerReturn => {
     const [code, onChange] = useState(initialCode);
     const { element, error } = useRunner({
         code: transformCode ? transformCode(code) : code,
