@@ -14,6 +14,8 @@
 
 + 支持复杂的模块化导入系统。
 
++ 支持自动分析文件import包并下载npm依赖。
+
 #### 使用
 
 ```shell
@@ -178,6 +180,60 @@ const LiveWithEditor = (scope,setScope) => {
   };
 ```
 
+####  自动分析文件import包并下载npm依赖
+
+```tsx
+function useAsyncMemo<T>(fn: () => Promise<T>, deps: any[]): T | undefined {
+    const [value, setValue] = useState<T>();
+    useEffect(() => {
+        fn().then(v => {
+            setValue(v);
+        });
+    }, deps);
+    return value;
+}
+
+function Demo({props,files,dependenciesMap={},code}:{
+  props:Record<string,any>,
+  files:Record<string,string>,
+  dependenciesMap:Record<string,any>,
+  code:string;
+}){
+  const resolveDeps = useAsyncMemo(async () => {
+        setInitStatus(false);
+        const mods = await fetchPackagesFromFiles({
+            files: {
+                ...files,
+                [ENTRY_FILE_PATH]: code,
+                Require: `
+                import * as React from 'react';
+                import  * as ReactDom from 'react-dom';
+                export {React,ReactDom}
+            `,
+            },
+            parseDepsSuccess: deps => {
+            },
+        });
+
+        return {
+            ...mods,
+            ...dependenciesMap,
+        };
+    }, [JSON.stringify(files), code, dependenciesMap]);
+
+    return <LiveProvider
+                code={code}
+                scope={{
+                    import: resolveDeps,
+                }}
+                props={props}
+            >
+                <Error />
+                {node}
+            </LiveProvider>
+}
+```
+
 ### 计划
 
-+ 自动导入npm依赖的代码沙箱。
++ 在线playground，所有功能demo。

@@ -1,6 +1,7 @@
 export type Scope = Record<string, any> & {
     /** scope used by import statement */
     import?: Record<string, any>;
+    files?: Record<string, any>;
 };
 
 export type RunnerOptions = {

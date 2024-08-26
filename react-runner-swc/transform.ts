@@ -1,4 +1,4 @@
-import { Options, transformSync as _transform, parseSync } from '@swc/wasm-web/wasm-web';
+import { Options, transformSync as _transform, parseSync } from '@swc/wasm-web';
 
 let customTransform: (code: string) => string;
 

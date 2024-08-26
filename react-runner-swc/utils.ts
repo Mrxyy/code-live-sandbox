@@ -1,8 +1,56 @@
 import React, { createElement, isValidElement, ReactElement } from 'react';
 
-import { transform, normalizeCode } from './transform';
-import { withMultiFiles } from './withMultiFile';
+import { transform, normalizeCode, getCodeAst } from './transform';
+import { isPackage, withMultiFiles } from './withMultiFile';
 import { RunnerOptions, Scope } from './types';
+
+export let getPackageNameFormFiles = function (
+    files: Record<string, string>,
+    defaultDeps: string[] = []
+) {
+    // 分析获取代码依赖
+    const maps = new Set(defaultDeps);
+    for (const file in files) {
+        const ast = getCodeAst(files[file]);
+        traverseNode(ast, {
+            enter(node) {
+                if (['ImportDeclaration'].includes(node.type)) {
+                    isPackage(node.source.value) && maps.add(node.source.value);
+                }
+                if (node.type === 'CallExpression' && node.callee.type === 'Import') {
+                    const argumentNode = node.arguments[0].expression;
+                    if (argumentNode.type === 'StringLiteral') {
+                        isPackage(argumentNode.value) && maps.add(argumentNode.value);
+                    }
+                }
+            },
+        });
+    }
+    return maps;
+};
+
+export function settPackageNameFormFilesFn(fn: typeof getPackageNameFormFiles) {
+    getPackageNameFormFiles = fn;
+}
+
+export function traverseNode(node, visitor) {
+    // 调用 visitor 的 enter 方法
+    if (visitor.enter) {
+        visitor.enter(node);
+    }
+
+    // 遍历子节点
+    for (let key in node) {
+        if (node.hasOwnProperty(key)) {
+            let child = node[key];
+            if (Array.isArray(child)) {
+                child.forEach(n => traverseNode(n, visitor));
+            } else if (child && typeof child.type === 'string') {
+                traverseNode(child, visitor);
+            }
+        }
+    }
+}
 
 export function shallowEqual(objA, objB) {
     if (objA === objB) {

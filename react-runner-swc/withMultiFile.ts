@@ -8,22 +8,27 @@ export const splitFileName = (filename: string) => {
     return [filename.substring(0, idx), filename.substring(idx + 1)];
 };
 
-const ENTRY_FILE_PATH = './App.tsx';
+export const ENTRY_FILE_PATH = './App.tsx';
 const ALIAS_EXTENSION = ['js', 'jsx', 'ts', 'tsx', 'css'];
 
-export function isPackage(input) {
-    // 检查是否包含斜杠
-    if (input.includes('/') || input.includes('\\')) {
+export function isPackage(path) {
+    // 判断是否为相对路径
+    if (path.startsWith('./') || path.startsWith('../')) {
         return false;
     }
 
-    // 检查是否包含文件扩展名
-    const hasExtension = /\.[^\/\\]+$/.test(input);
-    if (hasExtension) {
+    // 判断是否为绝对路径
+    if (path.startsWith('/')) {
         return false;
     }
 
-    // 默认返回包名
+    // 判断是否包含扩展名
+    const extensionPattern = /\.[^\/]+$/;
+    if (extensionPattern.test(path)) {
+        return false;
+    }
+
+    // 其他情况都认为是 npm 包
     return true;
 }
 

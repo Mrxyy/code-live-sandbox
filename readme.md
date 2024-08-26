@@ -12,6 +12,7 @@
 - **Inline and Mounting Modes**: Flexible integration options.
 - **Minimalistic Code**: Clean and straightforward implementation.
 - **Complex Module Import System**: Handles intricate import scenarios seamlessly.
+- **Automatic Dependency Analysis And Install**: Supports automatic analysis of imported packages in files and downloading npm dependencies.
 
 #### Installation
 
@@ -181,6 +182,61 @@ const LiveWithEditor = (scope, setScope) => {
 };
 ```
 
+
+####  Automatically analyze the imported packages in the file and download npm dependencies.
+
+```tsx
+function useAsyncMemo<T>(fn: () => Promise<T>, deps: any[]): T | undefined {
+    const [value, setValue] = useState<T>();
+    useEffect(() => {
+        fn().then(v => {
+            setValue(v);
+        });
+    }, deps);
+    return value;
+}
+
+function Demo({props,files,dependenciesMap={},code}:{
+  props:Record<string,any>,
+  files:Record<string,string>,
+  dependenciesMap:Record<string,any>,
+  code:string;
+}){
+  const resolveDeps = useAsyncMemo(async () => {
+        setInitStatus(false);
+        const mods = await fetchPackagesFromFiles({
+            files: {
+                ...files,
+                [ENTRY_FILE_PATH]: code,
+                Require: `
+                import * as React from 'react';
+                import  * as ReactDom from 'react-dom';
+                export {React,ReactDom}
+            `,
+            },
+            parseDepsSuccess: deps => {
+            },
+        });
+
+        return {
+            ...mods,
+            ...dependenciesMap,
+        };
+    }, [JSON.stringify(files), code, dependenciesMap]);
+
+    return <LiveProvider
+                code={code}
+                scope={{
+                    import: resolveDeps,
+                }}
+                props={props}
+            >
+                <Error />
+                {node}
+            </LiveProvider>
+}
+```
+
 ### Roadmap
 
-- Automatic import of npm dependencies in the code sandbox.
+- Online playground with demos of all features.
