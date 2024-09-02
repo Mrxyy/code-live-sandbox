@@ -1,4 +1,4 @@
-import { importCode } from './utils';
+import { getTailwindCssFormFile, importCode, isPackage, setDrive } from './utils';
 import { Scope } from './types';
 
 export const splitFileName = (filename: string) => {
@@ -9,28 +9,8 @@ export const splitFileName = (filename: string) => {
 };
 
 export const ENTRY_FILE_PATH = './App.tsx';
+export const TAILWIND_CONFIG_PATH = './tailwind.config.js';
 const ALIAS_EXTENSION = ['js', 'jsx', 'ts', 'tsx', 'css'];
-
-export function isPackage(path) {
-    // 判断是否为相对路径
-    if (path.startsWith('./') || path.startsWith('../')) {
-        return false;
-    }
-
-    // 判断是否为绝对路径
-    if (path.startsWith('/')) {
-        return false;
-    }
-
-    // 判断是否包含扩展名
-    const extensionPattern = /\.[^\/]+$/;
-    if (extensionPattern.test(path)) {
-        return false;
-    }
-
-    // 其他情况都认为是 npm 包
-    return true;
-}
 
 export function resolvePath(basePath, relativePath) {
     // 创建一个新的 URL 对象，基于基准路径解析相对路径
@@ -40,12 +20,15 @@ export function resolvePath(basePath, relativePath) {
     return '.' + absoluteUrl.pathname;
 }
 
-export const withMultiFiles = (scope: Scope) => {
+export const withMultiFiles = (scope: Scope, code: string) => {
     const imports: Scope = scope.import;
     const filesMap: Record<string, string> = {};
-
-    for (const key in scope.files) {
-        const v = scope.files[key];
+    const rawFiles = {
+        ...scope.files,
+        [ENTRY_FILE_PATH]: code,
+    };
+    for (const key in rawFiles) {
+        const v = rawFiles[key];
         const [name, ext] = splitFileName(key);
         if (ALIAS_EXTENSION.includes(ext) && typeof v === 'string') {
             filesMap[key] = v;
@@ -139,5 +122,28 @@ if (globalThis.document) {
         });
     };
 
-    return { ...scope, files, import: createImportsProxy(imports, ENTRY_FILE_PATH) };
+    const importProxy = createImportsProxy(imports, ENTRY_FILE_PATH);
+
+    if (files[TAILWIND_CONFIG_PATH]) {
+        setDrive().then(() => {
+            const { default: config } = importCode(
+                files[TAILWIND_CONFIG_PATH],
+                {
+                    ...scope,
+                    // entry file can use `render` but `importCode` doesn't provide it
+                    render: () => {},
+                    import: importProxy,
+                },
+                true
+            );
+            config &&
+                getTailwindCssFormFile(config, {
+                    ...files,
+                    [ENTRY_FILE_PATH]: code,
+                    [TAILWIND_CONFIG_PATH]: '',
+                });
+        });
+    }
+
+    return { ...scope, files, import: importProxy };
 };
